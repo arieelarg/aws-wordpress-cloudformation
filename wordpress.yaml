@@ -480,11 +480,11 @@ Resources:
                         wp core download --version='${WPVersion}' --locale='en_GB' --allow-root
                         wp core config --dbname='${DatabaseName}' --dbuser='${DatabaseMasterUsername}' --dbpass='${DatabaseMasterPassword}' --dbhost='${dbAddr}' --dbprefix=wp_ --allow-root
                         wp core install --url='http://${domainName}' --title='${title}' --admin_user='${WPAdminUsername}' --admin_password='${WPAdminPassword}' --admin_email='${WPAdminEmail}' --skip-email --allow-root
-                        echo 'define( 'WP_MAX_MEMORY_LIMIT' , '512M' );' >> /var/www/html/${domainName}/wp-config.php
                         sed -i "/$table_prefix = 'wp_';/ a \define('WP_HOME', 'http://' . \$_SERVER['HTTP_HOST']); " /var/www/html/${domainName}/wp-config.php
                         sed -i "/$table_prefix = 'wp_';/ a \define('WP_SITEURL', 'http://' . \$_SERVER['HTTP_HOST']); " /var/www/html/${domainName}/wp-config.php
                         sed -i "/$table_prefix = 'wp_';/ a \$_SERVER['HTTP'] = 'on';" /var/www/html/${domainName}/wp-config.php
                         sed -i "/$table_prefix = 'wp_';/ a \define('WP_CONTENT_URL', 'https://${cdnDomainName}');" /var/www/html/${domainName}/wp-config.php
+                        sed -i "/$table_prefix = 'wp_';/ a \define('WP_MAX_MEMORY_LIMIT', '512M');" /var/www/html/${domainName}/wp-config.php
                         # set permissions of wordpress site directories
                         chown -R apache:apache /var/www/html/${domainName}
                         chmod u+wrx /var/www/html/${domainName}/wp-content/*
