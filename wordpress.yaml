@@ -454,6 +454,8 @@ Resources:
               php-devel: []
               php-pear: []
               php-mbstring: []
+              php-gd: []
+              curl: []
         build_wordpress:
           files: 
             /tmp/install_wordpress.sh:
@@ -479,10 +481,6 @@ Resources:
                         sed -i "/$table_prefix = 'wp_';/ a \define('WP_HOME', 'http://' . \$_SERVER['HTTP_HOST']); " /var/www/html/${domainName}/wp-config.php
                         sed -i "/$table_prefix = 'wp_';/ a \define('WP_SITEURL', 'http://' . \$_SERVER['HTTP_HOST']); " /var/www/html/${domainName}/wp-config.php
                         sed -i "/$table_prefix = 'wp_';/ a \$_SERVER['HTTP'] = 'on';" /var/www/html/${domainName}/wp-config.php
-                        sed -i "/$table_prefix = 'wp_';/ a \define('WP_CONTENT_URL', 'https://${cdnDomainName}');" /var/www/html/${domainName}/wp-config.php
-                        sed -i "/$table_prefix = 'wp_';/ a \define('WP_DEBUG', 'true');" /var/www/html/${domainName}/wp-config.php
-                        sed -i "/$table_prefix = 'wp_';/ a \define('WP_DEBUG_LOG', 'true');" /var/www/html/${domainName}/wp-config.php
-                        sed -i "/$table_prefix = 'wp_';/ a \define('WP_MEMORY_LIMIT', '64M');" /var/www/html/${domainName}/wp-config.php
                         # set permissions of wordpress site directories
                         chown -R apache:apache /var/www/html/${domainName}
                         chmod u+wrx /var/www/html/${domainName}/wp-content/*
@@ -518,11 +516,19 @@ Resources:
 
                   sed -i "s/memory_limit = 128M/memory_limit = 512M/g" /etc/php.ini
                   sed -i "s/max_execution_time = 30/max_execution_time = 180/g" /etc/php.ini
-                  echo 'upload_max_size = 128M' >> /etc/php.ini
-                  sed -i "s/max_input_vars = 1000/max_input_vars = 2000/g" /etc/php.ini
+                  sed -i "s/; max_input_vars = 1000/max_input_vars = 2000/g" /etc/php.ini
                   sed -i "s/post_max_size = 8M/post_max_size = 256M/g" /etc/php.ini
-                  sed -i "s/upload_max_filesize = 20M/upload_max_filesize = 200M/g" /etc/php.ini
+                  sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 200M/g" /etc/php.ini
 
+                  echo "KeepAlive Off
+                  <IfModule prefork.c>
+                     StartServers        5
+                     MinSpareServers     5
+                     MaxSpareServers     10
+                     MaxClients          150
+                     MaxRequestsPerChild 3000
+                  </IfModule>" >> /etc/httpd/conf/httpd.conf
+                  
                   if [ ! -f /etc/httpd/conf.d/${domainName}.conf ]; then
                     touch /etc/httpd/conf.d/${domainName}.conf
                     echo 'ServerName ${domainName}' >> /etc/httpd/conf.d/${domainName}.conf
